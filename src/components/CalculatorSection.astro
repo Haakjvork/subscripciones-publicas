@@ -7,23 +7,15 @@ import SiteButton from "./ui/SiteButton.astro";
 		<form id="tax-form">
 			<div class="field">
 				<label for="salary">Cantidad del salario</label>
-				<input id="salary" name="salary" type="number" min="0" step="0.01" placeholder="Ejemplo: 2200" required />
+				<input id="salary" name="salary" type="number" min="0" step="0.01" value="18500" required />
 			</div>
 
 			<div class="field">
-				<label for="salary-type">Tipo de salario</label>
-				<select id="salary-type" name="salaryType">
-					<option value="bruto">Bruto</option>
-					<option value="neto">Neto</option>
-				</select>
-			</div>
-
-			<div class="field">
-				<label for="period">Formato de la cantidad</label>
-				<select id="period" name="period">
-					<option value="12">Mensual en 12 pagas</option>
-					<option value="14">Mensual en 14 pagas</option>
-					<option value="anual">Importe anual</option>
+				<label for="salary-mode">Tipo de cálculo</label>
+				<select id="salary-mode" name="salaryMode">
+					<option value="anual-bruto">Importe anual bruto</option>
+					<option value="mensual-12">Salario mensual bruto en 12 pagas</option>
+					<option value="mensual-14">Salario mensual bruto en 14 pagas</option>
 				</select>
 			</div>
 
@@ -43,25 +35,25 @@ import SiteButton from "./ui/SiteButton.astro";
 		<div class="kpis">
 			<div class="kpi">
 				<span>Impuestos al mes</span>
-				<strong id="tax-month">-</strong>
+				<strong >-</strong>
 			</div>
 			<div class="kpi">
 				<span>Impuestos al año</span>
-				<strong id="tax-year">-</strong>
+				<strong>-</strong>
 			</div>
 		</div>
 
 		<div class="breakdown">
 			<strong>Desglose de impuestos (mock)</strong>
-			<div id="breakdown-list"></div>
+			<table id="breakdown-table"></table>
 		</div>
 	</article>
 </section>
 
 <style>
 	.calculator {
-		display: grid;
-		grid-template-columns: 1fr;
+		display: flex;
+        flex-direction: column;
 		gap: 1rem;
 	}
 
@@ -120,14 +112,16 @@ import SiteButton from "./ui/SiteButton.astro";
 		gap: 0.8rem;
 	}
 
-	.kpi {
+	.kpis :global(.kpi) {
+        display: flex;
+        flex-direction: column;
 		padding: 0.8rem;
 		border-radius: 14px;
 		background: #fff;
 		border: 1px solid var(--line);
 	}
 
-	.kpi strong {
+	.kpis :global(.kpi strong) {
 		display: block;
 		font-size: 1.2rem;
 		margin-top: 0.2rem;
@@ -139,17 +133,21 @@ import SiteButton from "./ui/SiteButton.astro";
 		gap: 0.5rem;
 	}
 
-	.breakdown-item {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		gap: 0.8rem;
-		padding: 0.7rem;
-		border-radius: 12px;
+	#breakdown-table {
+		width: 100%;
+		border-collapse: collapse;
 		background: #fff;
-		border: 1px solid var(--line);
+		border-radius: 12px;
+		overflow: hidden;
 	}
 
-	.breakdown-item span:last-child {
+	#breakdown-table :global(td) {
+		padding: 0.55rem 0.7rem;
+		border: 1px solid var(--line);
+		text-align: left;
+	}
+
+	#breakdown-table :global(td:nth-child(3)) {
 		font-weight: 700;
 		color: var(--highlight);
 	}
