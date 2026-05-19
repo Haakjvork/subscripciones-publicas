@@ -1,0 +1,25 @@
+---
+interface Props {
+	href: string;
+	variant?: "primary" | "secondary";
+}
+
+const { href, variant = "primary" } = Astro.props;
+---
+
+<a href={href} class={`nav-link nav-link-${variant}`}><slot /></a>
+
+<style>
+	.nav-link {
+		display: inline-flex;
+		font-weight: 600;
+	}
+
+	.nav-link-primary {
+		color: var(--highlight);
+	}
+
+	.nav-link-secondary {
+		color: var(--accent);
+	}
+</style>

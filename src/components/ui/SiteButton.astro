@@ -1,0 +1,41 @@
+---
+interface Props {
+	type?: "submit" | "button" | "reset";
+	variant?: "primary" | "secondary";
+}
+
+const { type = "button", variant = "primary" } = Astro.props;
+---
+
+<button type={type} class={`site-button site-button-${variant}`}><slot /></button>
+
+<style>
+	.site-button {
+		padding: 0.8rem 1rem;
+		border: 0;
+		border-radius: 14px;
+		font-weight: 700;
+		cursor: pointer;
+		transition: transform 0.2s ease;
+		font: inherit;
+	}
+
+	.site-button-primary {
+		color: #fff;
+		background: linear-gradient(140deg, var(--accent), var(--accent-strong));
+	}
+
+	.site-button-primary:hover {
+		transform: translateY(-1px);
+	}
+
+	.site-button-secondary {
+		color: var(--ink);
+		background: #fff;
+		border: 1px solid var(--line);
+	}
+
+	.site-button-secondary:hover {
+		transform: translateY(-1px);
+	}
+</style>

@@ -1,0 +1,17 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import CalculatorSection from "../components/CalculatorSection.astro";
+
+---
+
+<MainLayout title="Calculadora Fiscal - Mockup">
+	<section class="hero">
+		<h1>Descubre cuánto pagas de impuestos y en qué se reparte</h1>
+		<p>
+			Introduce tu salario en bruto o neto, selecciona si hablas de 12, 14 pagas o importe anual, y obtén una estimación rápida del total de impuestos con un desglose por partidas públicas.
+		</p>
+	</section>
+
+	<CalculatorSection />
+	<script slot="scripts" src="/scripts/tax-calculator.js" defer></script>
+</MainLayout>

@@ -1,0 +1,162 @@
+---
+import SiteButton from "./ui/SiteButton.astro";
+---
+
+<section class="calculator">
+	<article class="panel">
+		<form id="tax-form">
+			<div class="field">
+				<label for="salary">Cantidad del salario</label>
+				<input id="salary" name="salary" type="number" min="0" step="0.01" placeholder="Ejemplo: 2200" required />
+			</div>
+
+			<div class="field">
+				<label for="salary-type">Tipo de salario</label>
+				<select id="salary-type" name="salaryType">
+					<option value="bruto">Bruto</option>
+					<option value="neto">Neto</option>
+				</select>
+			</div>
+
+			<div class="field">
+				<label for="period">Formato de la cantidad</label>
+				<select id="period" name="period">
+					<option value="12">Mensual en 12 pagas</option>
+					<option value="14">Mensual en 14 pagas</option>
+					<option value="anual">Importe anual</option>
+				</select>
+			</div>
+
+			<SiteButton type="submit">Calcular estimación</SiteButton>
+			<p class="note">
+				Valores orientativos y de ejemplo para el mockup. Podrás ajustar el reparto de partidas más adelante.
+			</p>
+		</form>
+	</article>
+
+	<article id="result-panel" class="panel hidden" aria-live="polite">
+		<div class="result-head">
+			<strong id="result-title">Resultado estimado</strong>
+			<span id="result-subtitle" class="note"></span>
+		</div>
+
+		<div class="kpis">
+			<div class="kpi">
+				<span>Impuestos al mes</span>
+				<strong id="tax-month">-</strong>
+			</div>
+			<div class="kpi">
+				<span>Impuestos al año</span>
+				<strong id="tax-year">-</strong>
+			</div>
+		</div>
+
+		<div class="breakdown">
+			<strong>Desglose de impuestos (mock)</strong>
+			<div id="breakdown-list"></div>
+		</div>
+	</article>
+</section>
+
+<style>
+	.calculator {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	.panel {
+		background: var(--bg-soft);
+		border: 1px solid var(--line);
+		border-radius: 24px;
+		padding: 1.2rem;
+		box-shadow: var(--shadow);
+		animation: rise 0.7s ease both;
+	}
+
+	form {
+		display: grid;
+		gap: 0.9rem;
+	}
+
+	.field {
+		display: grid;
+		gap: 0.35rem;
+	}
+
+	label {
+		font-weight: 600;
+		font-size: 0.95rem;
+	}
+
+	input,
+	select {
+		width: 100%;
+		padding: 0.7rem 0.75rem;
+		border-radius: 12px;
+		border: 1px solid #b8ab91;
+		background: #fff;
+	}
+
+	.note {
+		margin: 0;
+		font-size: 0.86rem;
+		color: var(--ink-soft);
+	}
+
+	.hidden {
+		display: none;
+	}
+
+	.result-head {
+		display: grid;
+		gap: 0.35rem;
+		margin-bottom: 0.9rem;
+	}
+
+	.kpis {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.8rem;
+	}
+
+	.kpi {
+		padding: 0.8rem;
+		border-radius: 14px;
+		background: #fff;
+		border: 1px solid var(--line);
+	}
+
+	.kpi strong {
+		display: block;
+		font-size: 1.2rem;
+		margin-top: 0.2rem;
+	}
+
+	.breakdown {
+		margin-top: 1rem;
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.breakdown-item {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 0.8rem;
+		padding: 0.7rem;
+		border-radius: 12px;
+		background: #fff;
+		border: 1px solid var(--line);
+	}
+
+	.breakdown-item span:last-child {
+		font-weight: 700;
+		color: var(--highlight);
+	}
+
+	@media (min-width: 900px) {
+		.calculator {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+</style>
