@@ -2,41 +2,42 @@ const SMI_ANUAL = 15876;
 const SALARIO_MEDIO_ANUAL = 29000;
 
 const ARRAY_CATEGORIAS = [
-	"Educación",
-	"Sanidad",
-	"Seguridad Social",
-	"Defensa",
-	"Orden Público",
-	"Asuntos Económicos",
-	"Protección Ambiental",
-	"Vivienda y Servicios Comunitarios",
-	"Ocio, Cultura y Religión",
-	"Protección Social",
-	"Deuda Pública",
-	"Administración General",
-	"Justicia",
-	"Pensiones",
-	"Paro",
-	"Invalidez",
-	"Familia e Infancia",
-	"Desempleo",
-	"Vivienda",
-	"Exclusión Social",
-	"Cultura",
-	"Deporte",
-	"Ciencia y Tecnología",
-	"Transportes",
-	"Comunicaciones",
-	"Energía",
-	"Agricultura",
-	"Industria",
-	"Comercio y Turismo",
-	"Otros",
-	"Otros Servicios"
+	{ "nombre": "Pensiones de Jubilación", "porcentaje": 24.8 },
+	{ "nombre": "Resto de Pensiones (Viudedad, Invalidez...)", "porcentaje": 9.7 },
+	{ "nombre": "Sanidad: Hospitales y Urgencias", "porcentaje": 7.8 },
+	{ "nombre": "Intereses de la Deuda Pública", "porcentaje": 5.8 },
+	{ "nombre": "El Paro (Subsidios por Desempleo)", "porcentaje": 6.2 },
+	{ "nombre": "Educación Secundaria, Bachiller y FP", "porcentaje": 4.1 },
+	{ "nombre": "Educación Primaria e Infantil", "porcentaje": 3.6 },
+	{ "nombre": "Sanidad: Recetas y Medicamentos", "porcentaje": 2.9 },
+	{ "nombre": "Defensa y Ejército", "porcentaje": 2.9 },
+	{ "nombre": "Universidades y Mecanismos de Becas", "porcentaje": 2.6 },
+	{ "nombre": "Sanidad: Médicos de Cabecera (Atención Primaria)", "porcentaje": 2.3 },
+	{ "nombre": "Policía Nacional y Guardia Civil", "porcentaje": 2.2 },
+	{ "nombre": "Sanidad: Médicos Especialistas y Consultas", "porcentaje": 2.1 },
+	{ "nombre": "Policías Locales y Autonómicas", "porcentaje": 2.1 },
+	{ "nombre": "Ayudas a Industria, Energía e I+D+i", "porcentaje": 1.8 },
+	{ "nombre": "Vías de Tren y Cercanías (ADIF/Renfe)", "porcentaje": 1.7 },
+	{ "nombre": "Mantenimiento de Carreteras y Autovías", "porcentaje": 1.6 },
+	{ "nombre": "Justicia y Prisiones", "porcentaje": 1.4 },
+	{ "nombre": "Limpieza Viaria, Basuras y Alcantarillado", "porcentaje": 1.4 },
+	{ "nombre": "Cultura, Deportes y Conservación de Patrimonio", "porcentaje": 1.3 },
+	{ "nombre": "Gastos Administrativos (Estado Central)", "porcentaje": 1.1 },
+	{ "nombre": "Gastos Administrativos (Comunidades Autónomas)", "porcentaje": 1.0 },
+	{ "nombre": "Vivienda Pública y Ayudas al Alquiler", "porcentaje": 0.9 },
+	{ "nombre": "Bomberos, Protección Civil y Emergencias", "porcentaje": 0.8 },
+	{ "nombre": "Ayudas directas al Transporte Público", "porcentaje": 0.8 },
+	{ "nombre": "Gastos Administrativos (Diputaciones y Ayuntamientos)", "porcentaje": 0.6 },
+	{ "nombre": "Televisión y Radios Públicas (RTVE y Autonómicas)", "porcentaje": 0.5 },
+	{ "nombre": "Puertos y Aeropuertos", "porcentaje": 0.3 },
+	{ "nombre": "Sueldos de Políticos, Concejales y Asesores", "porcentaje": 0.29 },
+	{ "nombre": "Otros (Fondos de Contingencia e Imprevistos)", "porcentaje": 0.2 },
+	{ "nombre": "Casa Real", "porcentaje": 0.01 }
 ];
 
 let customCards = [];
 let cardIdCounter = 1;
+let activeInputId = null;
 
 function getAnnualSalary(value, mode) {
 	const num = parseFloat(value);
@@ -90,72 +91,133 @@ function calcularRetencionIRPF(salarioAnual) {
 	return irpfAnual;
 }
 
+function getFormatLabel(value, mode) {
+	const num = parseFloat(value);
+	if (isNaN(num) || num === 0) return "€0";
+	
+	if (mode === "anual-bruto") {
+		return `€${num.toLocaleString('es-ES', { maximumFractionDigits: 0 })} Bruto Anual`;
+	} else if (mode === "mensual-12") {
+		return `€${num.toLocaleString('es-ES', { maximumFractionDigits: 0 })} Mensual (12)`;
+	} else if (mode === "mensual-14") {
+		return `€${num.toLocaleString('es-ES', { maximumFractionDigits: 0 })} Mensual (14)`;
+	}
+	return `€${num.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`;
+}
+
+function updateMetricsDisplay(salaryValue, elementId) {
+	const element = document.getElementById(elementId);
+	if (!element) return;
+
+	const irpfAnual = calcularRetencionIRPF(salaryValue);
+	const retencion = salaryValue > 0 ? (irpfAnual / salaryValue) * 100 : 0;
+	const netoMensual = (salaryValue - irpfAnual) / 12;
+
+	const metricsElements = element.querySelectorAll('.card-metric-value');
+	metricsElements[0].textContent = `${retencion.toFixed(2)}%`;
+	metricsElements[1].textContent = `€${salaryValue.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`;
+	metricsElements[2].textContent = `€${irpfAnual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`;
+	metricsElements[3].textContent = `€${netoMensual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`;
+}
+
 function getSelectedSalaries() {
 	const salaries = [];
 
 	const smiCheck = document.getElementById("smi-check");
 	if (smiCheck && smiCheck.checked) {
-		salaries.push({ id: "smi", salary: SMI_ANUAL, label: "SMI", checked: true });
+		salaries.push({ id: "smi", salary: SMI_ANUAL, label: "€15.876 Bruto Anual", checked: true });
 	}
 
 	const mediaCheck = document.getElementById("media-check");
 	if (mediaCheck && mediaCheck.checked) {
-		salaries.push({ id: "media", salary: SALARIO_MEDIO_ANUAL, label: "Salario Medio", checked: true });
+		salaries.push({ id: "media", salary: SALARIO_MEDIO_ANUAL, label: "€29.000 Bruto Anual", checked: true });
 	}
 
 	for (const card of customCards) {
 		if (card.checked) {
-			const mode = document.getElementById(`mode-${card.id}`).value;
-			const salary = getAnnualSalary(card.salary, mode);
-			salaries.push({ id: card.id, salary: salary, label: card.label, checked: true, mode: mode });
+			const salary = getAnnualSalary(card.salary, card.mode);
+			const label = getFormatLabel(card.salary, card.mode);
+			salaries.push({ id: card.id, salary: salary, label: label, checked: true });
 		}
 	}
 
 	return salaries;
 }
 
-function renderResultCard(id, salary, label) {
-	const irpfAnual = calcularRetencionIRPF(salary);
-	const retencion = salary > 0 ? (irpfAnual / salary) * 100 : 0;
-	const netoAnual = salary - irpfAnual;
-	const netoMensual = netoAnual / 12;
-	const irpfMensual = irpfAnual / 12;
+function renderCustomCard(id, salary, mode) {
+	const annualSalary = getAnnualSalary(salary, mode);
+	const irpfAnual = calcularRetencionIRPF(annualSalary);
+	const retencion = annualSalary > 0 ? (irpfAnual / annualSalary) * 100 : 0;
+	const netoMensual = (annualSalary - irpfAnual) / 12;
 
-	return `
-		<div class="result-card" id="card-${id}">
-			<div class="result-card-header">
-				<strong>${label}</strong>
+	const html = `
+		<div class="card card-custom card-preset-full" id="card-${id}">
+			<div class="card-header-preset">
+				<div class="card-header-left">
+					<input 
+						type="checkbox" 
+						class="custom-card-check"
+						data-id="${id}"
+						checked
+					>
+					<div class="card-content">
+						<span class="card-label">${getFormatLabel(salary, mode)}</span>
+						<span class="card-value"></span>
+					</div>
+				</div>
+				<button type="button" class="btn-remove" data-id="${id}" aria-label="Eliminar tarjeta">×</button>
 			</div>
-			<div class="result-card-metrics">
-				<div class="metric">
-					<span class="metric-label">% Retención</span>
-					<span class="metric-value">${retencion.toFixed(2)}%</span>
+
+			<div class="card-inputs">
+				<div class="card-input-group">
+					<label>Salario</label>
+					<input 
+						type="number" 
+						class="custom-card-salary" 
+						data-id="${id}" 
+						value="${salary}"
+						step="100"
+						min="0"
+					>
 				</div>
-				<div class="metric">
-					<span class="metric-label">Bruto Anual</span>
-					<span class="metric-value">€${salary.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				<div class="card-input-group">
+					<label>Período</label>
+					<select class="custom-card-mode" data-id="${id}">
+						<option value="anual-bruto" ${mode === 'anual-bruto' ? 'selected' : ''}>Bruto Anual</option>
+						<option value="mensual-12" ${mode === 'mensual-12' ? 'selected' : ''}>Mensual (12)</option>
+						<option value="mensual-14" ${mode === 'mensual-14' ? 'selected' : ''}>Mensual (14)</option>
+					</select>
 				</div>
-				<div class="metric">
-					<span class="metric-label">IRPF Anual</span>
-					<span class="metric-value">€${irpfAnual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+			</div>
+
+			<div class="card-metrics-preset">
+				<div class="card-metric">
+					<span class="card-metric-label">% Retención</span>
+					<span class="card-metric-value">${retencion.toFixed(2)}%</span>
 				</div>
-				<div class="metric">
-					<span class="metric-label">Neto Mensual</span>
-					<span class="metric-value">€${netoMensual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				<div class="card-metric">
+					<span class="card-metric-label">Bruto Anual</span>
+					<span class="card-metric-value">€${annualSalary.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
 				</div>
-				<div class="metric">
-					<span class="metric-label">IRPF Mensual</span>
-					<span class="metric-value">€${irpfMensual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				<div class="card-metric">
+					<span class="card-metric-label">IRPF Anual</span>
+					<span class="card-metric-value">€${irpfAnual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				</div>
+				<div class="card-metric">
+					<span class="card-metric-label">Neto Mensual</span>
+					<span class="card-metric-value">€${netoMensual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
 				</div>
 			</div>
 		</div>
 	`;
+
+	return html;
 }
 
 function createBreakdownTable(salaries) {
 	if (salaries.length === 0) return "";
 
-	let html = "<thead><tr><th>Concepto</th>";
+	let html = "<thead><tr><th>Concepto</th><th>%</th>";
 	for (const sal of salaries) {
 		html += `<th>${sal.label}</th>`;
 	}
@@ -163,12 +225,13 @@ function createBreakdownTable(salaries) {
 
 	for (let i = 0; i < ARRAY_CATEGORIAS.length; i++) {
 		const categoria = ARRAY_CATEGORIAS[i];
-		html += `<tr><td>${categoria}</td>`;
+		html += `<tr><td>${categoria.nombre}</td><td>${categoria.porcentaje.toFixed(2)}%</td>`;
 
 		for (const sal of salaries) {
-			const porcentajeCategoria = (100 / ARRAY_CATEGORIAS.length);
-			const importe = (sal.salary * (calcularRetencionIRPF(sal.salary) / sal.salary)) * (porcentajeCategoria / 100);
-			html += `<td>€${importe.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</td>`;
+			const irpfAnual = calcularRetencionIRPF(sal.salary);
+			const importeAnual = (irpfAnual * categoria.porcentaje) / 100;
+			const importeMensual = importeAnual / 12;
+			html += `<td>€${importeMensual.toLocaleString('es-ES', { maximumFractionDigits: 2 })}</td>`;
 		}
 
 		html += "</tr>";
@@ -178,20 +241,26 @@ function createBreakdownTable(salaries) {
 	return html;
 }
 
-function renderResults() {
+function updateDisplay() {
+	updateMetricsDisplay(SMI_ANUAL, 'smi-card');
+	updateMetricsDisplay(SALARIO_MEDIO_ANUAL, 'media-card');
+
+	const customContainer = document.getElementById("custom-cards-container");
+	if (customContainer) {
+		customContainer.innerHTML = customCards.map(card => renderCustomCard(card.id, card.salary, card.mode)).join("");
+		attachCustomCardListeners();
+	}
+
 	const salaries = getSelectedSalaries();
-	const resultsGrid = document.getElementById("results-grid");
 	const breakdownTable = document.getElementById("breakdown-table");
 	const resultPanel = document.getElementById("result-panel");
 
 	if (salaries.length === 0) {
-		resultsGrid.innerHTML = "";
 		breakdownTable.innerHTML = "";
 		resultPanel.classList.add("hidden");
 		return;
 	}
 
-	resultsGrid.innerHTML = salaries.map(s => renderResultCard(s.id, s.salary, s.label)).join("");
 	breakdownTable.innerHTML = createBreakdownTable(salaries);
 	resultPanel.classList.remove("hidden");
 }
@@ -203,106 +272,96 @@ function addCustomCard() {
 	const card = {
 		id: id,
 		salary: 0,
-		label: `Salario ${cardIdCounter - 1}`,
-		checked: false,
-		mode: "anual-bruto"
+		mode: "anual-bruto",
+		checked: true
 	};
 
 	customCards.push(card);
+	updateDisplay();
 
-	const cardsContainer = document.getElementById("custom-cards-container");
-	cardsContainer.insertAdjacentHTML("beforeend", `
-		<div class="card card-custom" id="card-${id}">
-			<div class="card-header">
-				<div>
-					<input 
-						type="checkbox" 
-						id="check-${id}" 
-						class="custom-card-check"
-						data-id="${id}"
-					>
-					<input 
-						type="text" 
-						class="custom-card-label" 
-						value="Salario ${cardIdCounter - 1}" 
-						data-id="${id}"
-						placeholder="Etiqueta"
-					>
-				</div>
-				<button type="button" class="btn-remove" data-id="${id}" aria-label="Eliminar tarjeta">×</button>
-			</div>
-			<div class="card-content">
-				<div class="card-custom-input">
-					<label>Salario</label>
-					<input 
-						type="number" 
-						class="custom-card-salary" 
-						data-id="${id}" 
-						placeholder="0"
-						step="100"
-						min="0"
-					>
-				</div>
-				<div class="card-custom-selector">
-					<label>Período</label>
-					<select id="mode-${id}" class="custom-card-mode" data-id="${id}">
-						<option value="anual-bruto">Bruto Anual</option>
-						<option value="mensual-12">Mensual (12 pagas)</option>
-						<option value="mensual-14">Mensual (14 pagas)</option>
-					</select>
-				</div>
-			</div>
-		</div>
-	`);
-
-	attachCustomCardListeners(id);
+	// Focus on the newly created input
+	setTimeout(() => {
+		const input = document.querySelector(`.custom-card-salary[data-id="${id}"]`);
+		if (input) {
+			input.focus();
+			activeInputId = id;
+		}
+	}, 0);
 }
 
-function attachCustomCardListeners(id) {
-	const checkEl = document.getElementById(`check-${id}`);
-	const labelEl = document.querySelector(`.custom-card-label[data-id="${id}"]`);
-	const salaryEl = document.querySelector(`.custom-card-salary[data-id="${id}"]`);
-	const modeEl = document.querySelector(`.custom-card-mode[data-id="${id}"]`);
-	const removeBtn = document.querySelector(`.btn-remove[data-id="${id}"]`);
+function attachCustomCardListeners() {
+	const checkboxes = document.querySelectorAll('.custom-card-check');
+	const salaryInputs = document.querySelectorAll('.custom-card-salary');
+	const modeSelects = document.querySelectorAll('.custom-card-mode');
+	const removeButtons = document.querySelectorAll('.btn-remove');
 
-	const cardObj = customCards.find(c => c.id === id);
-
-	if (checkEl) {
-		checkEl.addEventListener("change", (e) => {
-			cardObj.checked = e.target.checked;
-			renderResults();
+	checkboxes.forEach(checkbox => {
+		checkbox.addEventListener("change", (e) => {
+			const id = e.target.dataset.id;
+			const card = customCards.find(c => c.id === id);
+			if (card) {
+				card.checked = e.target.checked;
+				updateDisplay();
+			}
 		});
-	}
+	});
 
-	if (labelEl) {
-		labelEl.addEventListener("input", (e) => {
-			cardObj.label = e.target.value;
-			renderResults();
+	salaryInputs.forEach(input => {
+		input.addEventListener("input", (e) => {
+			const id = e.target.dataset.id;
+			const card = customCards.find(c => c.id === id);
+			if (card) {
+				card.salary = parseFloat(e.target.value) || 0;
+				updateDisplay();
+				// Restore focus after update
+				if (activeInputId === id) {
+					setTimeout(() => {
+						const currentInput = document.querySelector(`.custom-card-salary[data-id="${id}"]`);
+						if (currentInput && currentInput !== document.activeElement) {
+							currentInput.focus();
+						}
+					}, 0);
+				}
+			}
 		});
-	}
 
-	if (salaryEl) {
-		salaryEl.addEventListener("input", (e) => {
-			cardObj.salary = parseFloat(e.target.value) || 0;
-			renderResults();
+		input.addEventListener("focus", (e) => {
+			activeInputId = e.target.dataset.id;
 		});
-	}
 
-	if (modeEl) {
-		modeEl.addEventListener("change", (e) => {
-			cardObj.mode = e.target.value;
-			renderResults();
+		input.addEventListener("blur", () => {
+			activeInputId = null;
 		});
-	}
+	});
 
-	if (removeBtn) {
-		removeBtn.addEventListener("click", (e) => {
+	modeSelects.forEach(select => {
+		select.addEventListener("change", (e) => {
+			const id = e.target.dataset.id;
+			const card = customCards.find(c => c.id === id);
+			if (card) {
+				card.mode = e.target.value;
+				updateDisplay();
+				// Restore focus on the salary input after update
+				if (activeInputId === id) {
+					setTimeout(() => {
+						const currentInput = document.querySelector(`.custom-card-salary[data-id="${id}"]`);
+						if (currentInput) {
+							currentInput.focus();
+						}
+					}, 0);
+				}
+			}
+		});
+	});
+
+	removeButtons.forEach(btn => {
+		btn.addEventListener("click", (e) => {
 			e.preventDefault();
+			const id = e.target.dataset.id;
 			customCards = customCards.filter(c => c.id !== id);
-			document.getElementById(`card-${id}`).remove();
-			renderResults();
+			updateDisplay();
 		});
-	}
+	});
 }
 
 function attachPredefineCardListeners() {
@@ -310,11 +369,11 @@ function attachPredefineCardListeners() {
 	const mediaCheck = document.getElementById("media-check");
 
 	if (smiCheck) {
-		smiCheck.addEventListener("change", () => renderResults());
+		smiCheck.addEventListener("change", () => updateDisplay());
 	}
 
 	if (mediaCheck) {
-		mediaCheck.addEventListener("change", () => renderResults());
+		mediaCheck.addEventListener("change", () => updateDisplay());
 	}
 }
 
@@ -331,5 +390,5 @@ function attachAddCardListener() {
 document.addEventListener("DOMContentLoaded", () => {
 	attachPredefineCardListeners();
 	attachAddCardListener();
-	renderResults();
+	updateDisplay();
 });

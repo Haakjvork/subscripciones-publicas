@@ -8,23 +8,67 @@ import SiteButton from "./ui/SiteButton.astro";
 		<p class="subtitle">Selecciona tarjetas predefinidas o añade las tuyas propias</p>
 		
 		<div class="cards-container" id="cards-container">
-			<div class="card card-preset">
-				<input type="checkbox" id="smi-check" class="card-checkbox" checked />
-				<div class="card-content">
-					<span class="card-label">Salario Mínimo</span>
-					<span class="card-value">€15.876/año</span>
+				<div class="card card-preset card-preset-full" id="smi-card">
+					<div class="card-header-preset">
+						<div class="card-header-left">
+							<input type="checkbox" id="smi-check" class="card-checkbox" checked />
+							<div class="card-content">
+								<span class="card-label">Salario Mínimo</span>
+								<span class="card-value">€15.876/año</span>
+							</div>
+						</div>
 				</div>
+					<div class="card-metrics-preset">
+						<div class="card-metric">
+							<span class="card-metric-label">% Retención</span>
+							<span class="card-metric-value" data-metric="retention">-</span>
+						</div>
+						<div class="card-metric">
+							<span class="card-metric-label">Bruto Anual</span>
+							<span class="card-metric-value" data-metric="bruto">-</span>
+						</div>
+						<div class="card-metric">
+							<span class="card-metric-label">IRPF Anual</span>
+							<span class="card-metric-value" data-metric="irpf">-</span>
+						</div>
+						<div class="card-metric">
+							<span class="card-metric-label">Neto Mensual</span>
+							<span class="card-metric-value" data-metric="neto">-</span>
+						</div>
+					</div>
 			</div>
 
-			<div class="card card-preset">
-				<input type="checkbox" id="media-check" class="card-checkbox" checked />
-				<div class="card-content">
-					<span class="card-label">Salario Medio</span>
-					<span class="card-value">€29.000/año</span>
+				<div class="card card-preset card-preset-full" id="media-card">
+					<div class="card-header-preset">
+						<div class="card-header-left">
+							<input type="checkbox" id="media-check" class="card-checkbox" checked />
+							<div class="card-content">
+								<span class="card-label">Salario Medio</span>
+								<span class="card-value">€29.000/año</span>
+							</div>
+						</div>
 				</div>
+					<div class="card-metrics-preset">
+						<div class="card-metric">
+							<span class="card-metric-label">% Retención</span>
+							<span class="card-metric-value" data-metric="retention">-</span>
+						</div>
+						<div class="card-metric">
+							<span class="card-metric-label">Bruto Anual</span>
+							<span class="card-metric-value" data-metric="bruto">-</span>
+						</div>
+						<div class="card-metric">
+							<span class="card-metric-label">IRPF Anual</span>
+							<span class="card-metric-value" data-metric="irpf">-</span>
+						</div>
+						<div class="card-metric">
+							<span class="card-metric-label">Neto Mensual</span>
+							<span class="card-metric-value" data-metric="neto">-</span>
+						</div>
+					</div>
 			</div>
 
-			<div class="card card-add">
+				<div class="card card-add" id="add-card-placeholder">
 				<button type="button" id="add-card-btn" class="btn-add-card">+ Agregar tarjeta</button>
 			</div>
 		</div>
@@ -33,11 +77,8 @@ import SiteButton from "./ui/SiteButton.astro";
 	</article>
 
 	<article id="result-panel" class="panel result-panel hidden" aria-live="polite">
-		<div class="results-grid" id="results-grid">
-		</div>
-
 		<div class="breakdown">
-			<strong>Desglose: ¿En qué se reparte tu IRPF?</strong>
+			<strong>¿Cuánto cuesta una suscripción mensual a...?</strong>
 			<div class="breakdown-scroll">
 				<table id="breakdown-table"></table>
 			</div>
@@ -104,6 +145,34 @@ import SiteButton from "./ui/SiteButton.astro";
 		align-items: start;
 	}
 
+	.card.card-preset-full {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		padding: 1rem;
+	}
+
+	.card-header-preset {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.card-header-left {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		flex: 1;
+	}
+
+	.card-metrics-preset {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.75rem;
+		padding-top: 0.75rem;
+		border-top: 1px solid var(--line);
+	}
+
 	.card-checkbox {
 		width: 20px;
 		height: 20px;
@@ -155,43 +224,15 @@ import SiteButton from "./ui/SiteButton.astro";
 	.card.card-custom {
 		display: flex;
 		flex-direction: column;
-		gap: 0.75rem;
+		gap: 1rem;
+		padding: 1rem;
+		border: 2px solid var(--accent);
+		background: rgba(59, 130, 246, 0.02);
 	}
 
-	.card-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
-	}
-
-	.card-header > div {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		flex: 1;
-	}
-
-	.card-header input[type="checkbox"] {
-		width: 18px;
-		height: 18px;
-		cursor: pointer;
-		accent-color: var(--accent);
-		margin: 0;
-		flex-shrink: 0;
-	}
-
-	.custom-card-label {
-		flex: 1;
-		border: none;
-		background: transparent;
-		font-weight: 600;
-		font-size: 0.95rem;
-		color: var(--ink);
-		padding: 0;
-		margin: 0;
-		outline: none;
-		cursor: text;
+	.card.card-custom:hover {
+		background: rgba(59, 130, 246, 0.05);
+		border-color: var(--accent-strong);
 	}
 
 	.btn-remove {
@@ -210,19 +251,26 @@ import SiteButton from "./ui/SiteButton.astro";
 		color: #dc2626;
 	}
 
-	.card-content {
+	.card-inputs {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 0.75rem;
 	}
 
-	.card-custom-input {
+	.card-input-group {
 		display: flex;
 		flex-direction: column;
 		gap: 0.3rem;
 	}
 
-	.card-custom-input input {
+	.card-input-group label {
+		font-size: 0.75rem;
+		color: var(--ink-soft);
+		font-weight: 500;
+	}
+
+	.card-input-group input,
+	.card-input-group select {
 		width: 100%;
 		padding: 0.5rem;
 		border: 1px solid var(--line);
@@ -231,98 +279,22 @@ import SiteButton from "./ui/SiteButton.astro";
 		background: var(--bg-soft);
 	}
 
-	.card-custom-input label {
+	.card-metric {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.card-metric-label {
 		font-size: 0.75rem;
 		color: var(--ink-soft);
 		font-weight: 500;
 	}
 
-	.card-custom-selector {
-		display: flex;
-		flex-direction: column;
-		gap: 0.3rem;
-	}
-
-	.card-custom-selector label {
-		font-size: 0.75rem;
-		color: var(--ink-soft);
-		font-weight: 500;
-	}
-
-	.card-custom-selector select {
-		width: 100%;
-		padding: 0.4rem;
-		border: 1px solid var(--line);
-		border-radius: 6px;
-		font-size: 0.8rem;
-		background: var(--bg-soft);
-	}
-
-	.results-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
-
-	.result-card {
-		background: var(--bg-main);
-		border: 1px solid var(--line);
-		border-radius: 10px;
-		padding: 1.25rem;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-	}
-
-	.result-card-header {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding-bottom: 0.75rem;
-		border-bottom: 2px solid var(--line);
-	}
-
-	.result-card-header strong {
-		font-size: 0.95rem;
-		color: var(--ink);
-		font-weight: 600;
-	}
-
-	.result-card-metrics {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.metric {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: 1rem;
-		padding-bottom: 0.5rem;
-		border-bottom: 1px solid var(--line);
-	}
-
-	.metric:last-child {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-
-	.metric-label {
-		font-size: 0.8rem;
-		color: var(--ink-soft);
-		font-weight: 500;
-		text-align: left;
-	}
-
-	.metric-value {
-		font-size: 0.95rem;
+	.card-metric-value {
+		font-size: 0.9rem;
 		font-weight: 700;
 		color: var(--accent);
-		text-align: right;
-		white-space: nowrap;
 	}
 
 	.form-custom {
@@ -426,6 +398,14 @@ import SiteButton from "./ui/SiteButton.astro";
 		white-space: nowrap;
 	}
 
+	#breakdown-table :global(th:nth-child(2)) {
+		text-align: center;
+	}
+
+	#breakdown-table :global(th:not(:first-child):not(:nth-child(2))) {
+		text-align: right;
+	}
+
 	#breakdown-table :global(td) {
 		padding: 0.65rem 0.5rem;
 		border-bottom: 1px solid var(--line);
@@ -435,9 +415,17 @@ import SiteButton from "./ui/SiteButton.astro";
 	#breakdown-table :global(td:nth-child(1)) {
 		font-weight: 500;
 		min-width: 180px;
+		text-align: left;
 	}
 
-	#breakdown-table :global(td:not(:first-child)) {
+	#breakdown-table :global(td:nth-child(2)) {
+		text-align: center;
+		font-weight: 500;
+		color: var(--ink-soft);
+		font-size: 0.85rem;
+	}
+
+	#breakdown-table :global(td:not(:first-child):not(:nth-child(2))) {
 		text-align: right;
 		font-weight: 600;
 		color: var(--accent);
