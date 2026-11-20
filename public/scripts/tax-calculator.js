@@ -1,196 +1,335 @@
-const form = document.querySelector("#tax-form");
-const resultPanel = document.querySelector("#result-panel");
-const kpisEl = document.querySelector(".kpis");
-const resultSubtitleEl = document.querySelector("#result-subtitle");
-const breakdownTableEl = document.querySelector("#breakdown-table");
+const SMI_ANUAL = 15876;
+const SALARIO_MEDIO_ANUAL = 29000;
 
-// 1. Tramos oficiales de la escala general estatal del IRPF
-const TRAMOS = [
-    { limite: 12450, tipo: 0.19 },
-    { limite: 20200, tipo: 0.24 },
-    { limite: 35200, tipo: 0.30 },
-    { limite: 60000, tipo: 0.35 },
-    { limite: 300000, tipo: 0.45 },
-    { limite: Infinity, tipo: 0.47 }
+const ARRAY_CATEGORIAS = [
+	"Educación",
+	"Sanidad",
+	"Seguridad Social",
+	"Defensa",
+	"Orden Público",
+	"Asuntos Económicos",
+	"Protección Ambiental",
+	"Vivienda y Servicios Comunitarios",
+	"Ocio, Cultura y Religión",
+	"Protección Social",
+	"Deuda Pública",
+	"Administración General",
+	"Justicia",
+	"Pensiones",
+	"Paro",
+	"Invalidez",
+	"Familia e Infancia",
+	"Desempleo",
+	"Vivienda",
+	"Exclusión Social",
+	"Cultura",
+	"Deporte",
+	"Ciencia y Tecnología",
+	"Transportes",
+	"Comunicaciones",
+	"Energía",
+	"Agricultura",
+	"Industria",
+	"Comercio y Turismo",
+	"Otros",
+	"Otros Servicios"
 ];
 
-// Mínimo personal exento general
-const MINIMO_PERSONAL = 5550;
+let customCards = [];
+let cardIdCounter = 1;
 
-//Los porcentajes se aplican de forma proporcional sobre el Gasto Público Consolidado total de España según la clasificación COFOG de la IGAE
-const ARRAY_CATEGORIAS = [
-  { "nombre": "Pensiones de Jubilación", "porcentaje": 24.8 },
-  { "nombre": "Resto de Pensiones (Viudedad, Invalidez...)", "porcentaje": 9.7 },
-  { "nombre": "Sanidad: Hospitales y Urgencias", "porcentaje": 7.8 },
-  { "nombre": "Intereses de la Deuda Pública", "porcentaje": 5.8 },
-  { "nombre": "El Paro (Subsidios por Desempleo)", "porcentaje": 6.2 },
-  { "nombre": "Educación Secundaria, Bachiller y FP", "porcentaje": 4.1 },
-  { "nombre": "Educación Primaria e Infantil", "porcentaje": 3.6 },
-  { "nombre": "Sanidad: Recetas y Medicamentos", "porcentaje": 2.9 },
-  { "nombre": "Defensa y Ejército", "porcentaje": 2.9 },
-  { "nombre": "Universidades y Mecanismos de Becas", "porcentaje": 2.6 },
-  { "nombre": "Sanidad: Médicos de Cabecera (Atención Primaria)", "porcentaje": 2.3 },
-  { "nombre": "Policía Nacional y Guardia Civil", "porcentaje": 2.2 },
-  { "nombre": "Sanidad: Médicos Especialistas y Consultas", "porcentaje": 2.1 },
-  { "nombre": "Policías Locales y Autonómicas", "porcentaje": 2.1 },
-  { "nombre": "Ayudas a Industria, Energía e I+D+i", "porcentaje": 1.8 },
-  { "nombre": "Vías de Tren y Cercanías (ADIF/Renfe)", "porcentaje": 1.7 },
-  { "nombre": "Mantenimiento de Carreteras y Autovías", "porcentaje": 1.6 },
-  { "nombre": "Justicia y Prisiones", "porcentaje": 1.4 },
-  { "nombre": "Limpieza Viaria, Basuras y Alcantarillado", "porcentaje": 1.4 },
-  { "nombre": "Cultura, Deportes y Conservación de Patrimonio", "porcentaje": 1.3 },
-  { "nombre": "Gastos Administrativos (Estado Central)", "porcentaje": 1.1 },
-  { "nombre": "Gastos Administrativos (Comunidades Autónomas)", "porcentaje": 1.0 },
-  { "nombre": "Vivienda Pública y Ayudas al Alquiler", "porcentaje": 0.9 },
-  { "nombre": "Bomberos, Protección Civil y Emergencias", "porcentaje": 0.8 },
-  { "nombre": "Ayudas directas al Transporte Público", "porcentaje": 0.8 },
-  { "nombre": "Gastos Administrativos (Diputaciones y Ayuntamientos)", "porcentaje": 0.6 },
-  { "nombre": "Televisión y Radios Públicas (RTVE y Autonómicas)", "porcentaje": 0.5 },
-  { "nombre": "Puertos y Aeropuertos", "porcentaje": 0.3 },
-  { "nombre": "Sueldos de Políticos, Concejales y Asesores", "porcentaje": 0.29 },
-  { "nombre": "Otros (Fondos de Contingencia e Imprevistos)", "porcentaje": 0.2 },
-  { "nombre": "Casa Real", "porcentaje": 0.01 }
-]
-
-function toEuro(value) {
-	return new Intl.NumberFormat("es-ES", {
-		style: "currency",
-		currency: "EUR",
-		maximumFractionDigits: 2
-	}).format(value);
+function getAnnualSalary(value, mode) {
+	const num = parseFloat(value);
+	if (isNaN(num)) return 0;
+	if (mode === "anual-bruto") return num;
+	if (mode === "mensual-12") return num * 12;
+	if (mode === "mensual-14") return num * 14;
+	return 0;
 }
 
+function calcularCuotaTramo(salario) {
+	const tramos = [
+		{ limite: 6000, tasa: 0.19 },
+		{ limite: 10000, tasa: 0.24 },
+		{ limite: 15000, tasa: 0.3 },
+		{ limite: 24000, tasa: 0.37 },
+		{ limite: 43000, tasa: 0.45 },
+		{ limite: Infinity, tasa: 0.47 }
+	];
 
-function calcularCuotaTramo(base) {
-    let cuota = 0;
-    let anteriorLimite = 0;
+	let cuota = 0;
+	let basePrev = 0;
 
-    for (const tramo of TRAMOS) {
-        if (base > tramo.limite) {
-            // El sueldo supera el tramo actual, se calcula la cuota de este tramo completo
-            cuota += (tramo.limite - anteriorLimite) * tramo.tipo;
-            anteriorLimite = tramo.limite;
-        } else {
-            // El sueldo se queda en este tramo, se calcula la parte proporcional restante
-            cuota += (base - anteriorLimite) * tramo.tipo;
-            break;
-        }
-    }
-    return cuota;
-}
-
-//// En España, las rentas bajas tienen una reducción extra antes de aplicar los tramos
-function calcularReduccion(brutoAnual) {
-    if (brutoAnual <= 14047.50) {
-        return 6497.50;
-    } else if (brutoAnual > 14047.50 && brutoAnual <= 19747.50) {
-        return 6497.50 - 1.14 * (brutoAnual - 14047.50);
-    } else {
-        return 0;
-    }
-}
-
-/**
- * Calcula el porcentaje de retención estimado de IRPF (Tarifa General Estatal)
- * @param {number} brutoAnual - Sueldo bruto anual en euros
- * @returns {{bruto: number, irpf: number, neto: number, porcentajeEfectivo: number}} - Devuelve un objeto con el total a pagar, neto y el % de retención efectivo
- */
-function calcularRetencionIRPF(brutoAnual) {
-
-    const reduccion = calcularReduccion(brutoAnual);
-    const baseLiquidable = Math.max(0, brutoAnual - reduccion);
-    const cuotaBase = calcularCuotaTramo(baseLiquidable);
-    const cuotaMinimo = calcularCuotaTramo(MINIMO_PERSONAL);
-    const irpfAnual = Math.max(0, cuotaBase - cuotaMinimo);
-    const porcentajeRetencion = brutoAnual > 0 ? (irpfAnual / brutoAnual) * 100 : 0;
-
-    return {
-        bruto: brutoAnual,
-        irpf: Math.round(irpfAnual * 100) / 100,
-        neto: Math.round((brutoAnual - irpfAnual) * 100) / 100,
-        porcentajeEfectivo: Math.round(porcentajeRetencion * 100) / 100
-    };
-}
-
-function renderKpi(name, value) {
-	if (!kpisEl) {
-		return;
-	}
-    const div = document.createElement("div");
-    div.classList.add("kpi");
-    div.innerHTML = `
-        <span>${name}</span>
-        <strong>${value}</strong>
-    `;
-    kpisEl.appendChild(div);
-}
-
-function createBreakdownTable() {
-    breakdownTableEl.innerHTML = `
-        <thead>
-            <tr>
-                <th>Concepto</th>
-                <th>Porcentaje</th>
-                <th>Mensual</th>
-                <th>Anual</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    `;
-}
-
-function renderBreakdownRows(irpf) {
-	if (!breakdownTableEl) {
-		return;
+	for (const tramo of tramos) {
+		const limite = tramo.limite;
+		if (salario <= basePrev) break;
+		const baseTramo = Math.min(salario, limite) - basePrev;
+		cuota += baseTramo * tramo.tasa;
+		basePrev = limite;
 	}
 
-	breakdownTableEl.getElementsByTagName("tbody")[0].innerHTML = ARRAY_CATEGORIAS
-		.map(
-			(item) =>
-				`<tr>
-                    <td>${item.nombre}</td>
-                    <td>${item.porcentaje.toFixed(2)} %</td>
-                    <td>${toEuro((irpf * item.porcentaje) / 12 / 100)}</td>
-                    <td>${toEuro((irpf * item.porcentaje) / 100)}</td>
-                </tr>`
-		)
-		.join("");
+	return cuota;
 }
 
-if (form && resultPanel && kpisEl && resultSubtitleEl) {
-	form.addEventListener("submit", (event) => {
-		event.preventDefault();
+function calcularReduccion(salario) {
+	if (salario < 15000) return 500;
+	if (salario < 20000) return 400;
+	if (salario < 25000) return 300;
+	return 0;
+}
 
-		const formData = new FormData(form);
-        const salaryRaw = Number(formData.get("salary"));
-        const salaryMode = String(formData.get("salaryMode"));
+function calcularRetencionIRPF(salarioAnual) {
+	if (salarioAnual === 0) return 0;
 
-		if (!Number.isFinite(salaryRaw) || salaryRaw <= 0) {
-			return;
+	const minimo = 5550;
+	const baseImponible = Math.max(0, salarioAnual - minimo);
+	const cuota = calcularCuotaTramo(baseImponible);
+	const reduccion = calcularReduccion(baseImponible);
+	const irpfAnual = Math.max(0, cuota - reduccion);
+
+	return irpfAnual;
+}
+
+function getSelectedSalaries() {
+	const salaries = [];
+
+	const smiCheck = document.getElementById("smi-check");
+	if (smiCheck && smiCheck.checked) {
+		salaries.push({ id: "smi", salary: SMI_ANUAL, label: "SMI", checked: true });
+	}
+
+	const mediaCheck = document.getElementById("media-check");
+	if (mediaCheck && mediaCheck.checked) {
+		salaries.push({ id: "media", salary: SALARIO_MEDIO_ANUAL, label: "Salario Medio", checked: true });
+	}
+
+	for (const card of customCards) {
+		if (card.checked) {
+			const mode = document.getElementById(`mode-${card.id}`).value;
+			const salary = getAnnualSalary(card.salary, mode);
+			salaries.push({ id: card.id, salary: salary, label: card.label, checked: true, mode: mode });
+		}
+	}
+
+	return salaries;
+}
+
+function renderResultCard(id, salary, label) {
+	const irpfAnual = calcularRetencionIRPF(salary);
+	const retencion = salary > 0 ? (irpfAnual / salary) * 100 : 0;
+	const netoAnual = salary - irpfAnual;
+	const netoMensual = netoAnual / 12;
+	const irpfMensual = irpfAnual / 12;
+
+	return `
+		<div class="result-card" id="card-${id}">
+			<div class="result-card-header">
+				<strong>${label}</strong>
+			</div>
+			<div class="result-card-metrics">
+				<div class="metric">
+					<span class="metric-label">% Retención</span>
+					<span class="metric-value">${retencion.toFixed(2)}%</span>
+				</div>
+				<div class="metric">
+					<span class="metric-label">Bruto Anual</span>
+					<span class="metric-value">€${salary.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				</div>
+				<div class="metric">
+					<span class="metric-label">IRPF Anual</span>
+					<span class="metric-value">€${irpfAnual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				</div>
+				<div class="metric">
+					<span class="metric-label">Neto Mensual</span>
+					<span class="metric-value">€${netoMensual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				</div>
+				<div class="metric">
+					<span class="metric-label">IRPF Mensual</span>
+					<span class="metric-value">€${irpfMensual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				</div>
+			</div>
+		</div>
+	`;
+}
+
+function createBreakdownTable(salaries) {
+	if (salaries.length === 0) return "";
+
+	let html = "<thead><tr><th>Concepto</th>";
+	for (const sal of salaries) {
+		html += `<th>${sal.label}</th>`;
+	}
+	html += "</tr></thead><tbody>";
+
+	for (let i = 0; i < ARRAY_CATEGORIAS.length; i++) {
+		const categoria = ARRAY_CATEGORIAS[i];
+		html += `<tr><td>${categoria}</td>`;
+
+		for (const sal of salaries) {
+			const porcentajeCategoria = (100 / ARRAY_CATEGORIAS.length);
+			const importe = (sal.salary * (calcularRetencionIRPF(sal.salary) / sal.salary)) * (porcentajeCategoria / 100);
+			html += `<td>€${importe.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</td>`;
 		}
 
-        kpisEl.innerHTML = "";
+		html += "</tr>";
+	}
 
-        let annualInput = 0;
-        if (salaryMode === "anual-bruto") {
-            annualInput = salaryRaw;
-        } else if (salaryMode === "mensual-12") {
-            annualInput = salaryRaw * 12;
-        } else if (salaryMode === "mensual-14") {
-            annualInput = salaryRaw * 14;
-        } else {
-            annualInput = salaryRaw;
-        }
-        const retenciones = calcularRetencionIRPF(annualInput);
-
-        renderKpi("Sueldo bruto anual", toEuro(retenciones.bruto));
-        renderKpi("Sueldo neto anual", toEuro(retenciones.neto));
-        renderKpi("IRPF anual", toEuro(retenciones.irpf));
-        renderKpi("Porcentaje efectivo de retención", retenciones.porcentajeEfectivo + " %");
-
-        createBreakdownTable();
-		renderBreakdownRows(retenciones.irpf);
-
-		resultPanel.classList.remove("hidden");
-	});
+	html += "</tbody>";
+	return html;
 }
+
+function renderResults() {
+	const salaries = getSelectedSalaries();
+	const resultsGrid = document.getElementById("results-grid");
+	const breakdownTable = document.getElementById("breakdown-table");
+	const resultPanel = document.getElementById("result-panel");
+
+	if (salaries.length === 0) {
+		resultsGrid.innerHTML = "";
+		breakdownTable.innerHTML = "";
+		resultPanel.classList.add("hidden");
+		return;
+	}
+
+	resultsGrid.innerHTML = salaries.map(s => renderResultCard(s.id, s.salary, s.label)).join("");
+	breakdownTable.innerHTML = createBreakdownTable(salaries);
+	resultPanel.classList.remove("hidden");
+}
+
+function addCustomCard() {
+	const id = `custom-${cardIdCounter}`;
+	cardIdCounter++;
+
+	const card = {
+		id: id,
+		salary: 0,
+		label: `Salario ${cardIdCounter - 1}`,
+		checked: false,
+		mode: "anual-bruto"
+	};
+
+	customCards.push(card);
+
+	const cardsContainer = document.getElementById("custom-cards-container");
+	cardsContainer.insertAdjacentHTML("beforeend", `
+		<div class="card card-custom" id="card-${id}">
+			<div class="card-header">
+				<div>
+					<input 
+						type="checkbox" 
+						id="check-${id}" 
+						class="custom-card-check"
+						data-id="${id}"
+					>
+					<input 
+						type="text" 
+						class="custom-card-label" 
+						value="Salario ${cardIdCounter - 1}" 
+						data-id="${id}"
+						placeholder="Etiqueta"
+					>
+				</div>
+				<button type="button" class="btn-remove" data-id="${id}" aria-label="Eliminar tarjeta">×</button>
+			</div>
+			<div class="card-content">
+				<div class="card-custom-input">
+					<label>Salario</label>
+					<input 
+						type="number" 
+						class="custom-card-salary" 
+						data-id="${id}" 
+						placeholder="0"
+						step="100"
+						min="0"
+					>
+				</div>
+				<div class="card-custom-selector">
+					<label>Período</label>
+					<select id="mode-${id}" class="custom-card-mode" data-id="${id}">
+						<option value="anual-bruto">Bruto Anual</option>
+						<option value="mensual-12">Mensual (12 pagas)</option>
+						<option value="mensual-14">Mensual (14 pagas)</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	`);
+
+	attachCustomCardListeners(id);
+}
+
+function attachCustomCardListeners(id) {
+	const checkEl = document.getElementById(`check-${id}`);
+	const labelEl = document.querySelector(`.custom-card-label[data-id="${id}"]`);
+	const salaryEl = document.querySelector(`.custom-card-salary[data-id="${id}"]`);
+	const modeEl = document.querySelector(`.custom-card-mode[data-id="${id}"]`);
+	const removeBtn = document.querySelector(`.btn-remove[data-id="${id}"]`);
+
+	const cardObj = customCards.find(c => c.id === id);
+
+	if (checkEl) {
+		checkEl.addEventListener("change", (e) => {
+			cardObj.checked = e.target.checked;
+			renderResults();
+		});
+	}
+
+	if (labelEl) {
+		labelEl.addEventListener("input", (e) => {
+			cardObj.label = e.target.value;
+			renderResults();
+		});
+	}
+
+	if (salaryEl) {
+		salaryEl.addEventListener("input", (e) => {
+			cardObj.salary = parseFloat(e.target.value) || 0;
+			renderResults();
+		});
+	}
+
+	if (modeEl) {
+		modeEl.addEventListener("change", (e) => {
+			cardObj.mode = e.target.value;
+			renderResults();
+		});
+	}
+
+	if (removeBtn) {
+		removeBtn.addEventListener("click", (e) => {
+			e.preventDefault();
+			customCards = customCards.filter(c => c.id !== id);
+			document.getElementById(`card-${id}`).remove();
+			renderResults();
+		});
+	}
+}
+
+function attachPredefineCardListeners() {
+	const smiCheck = document.getElementById("smi-check");
+	const mediaCheck = document.getElementById("media-check");
+
+	if (smiCheck) {
+		smiCheck.addEventListener("change", () => renderResults());
+	}
+
+	if (mediaCheck) {
+		mediaCheck.addEventListener("change", () => renderResults());
+	}
+}
+
+function attachAddCardListener() {
+	const addBtn = document.getElementById("add-card-btn");
+	if (addBtn) {
+		addBtn.addEventListener("click", (e) => {
+			e.preventDefault();
+			addCustomCard();
+		});
+	}
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+	attachPredefineCardListeners();
+	attachAddCardListener();
+	renderResults();
+});

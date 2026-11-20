@@ -11,31 +11,45 @@ const { type = "button", variant = "primary" } = Astro.props;
 
 <style>
 	.site-button {
-		padding: 0.8rem 1rem;
+		padding: 0.75rem 1.25rem;
 		border: 0;
-		border-radius: 14px;
-		font-weight: 700;
+		border-radius: 8px;
+		font-weight: 600;
 		cursor: pointer;
-		transition: transform 0.2s ease;
+		transition: all 0.2s ease;
 		font: inherit;
+		font-size: 0.95rem;
 	}
 
 	.site-button-primary {
 		color: #fff;
-		background: linear-gradient(140deg, var(--accent), var(--accent-strong));
+		background: var(--accent);
+		box-shadow: var(--shadow);
 	}
 
 	.site-button-primary:hover {
+		background: var(--accent-strong);
 		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgb(59 130 246 / 20%);
+	}
+
+	.site-button-primary:active {
+		transform: translateY(0);
 	}
 
 	.site-button-secondary {
 		color: var(--ink);
-		background: #fff;
+		background: var(--bg-main);
 		border: 1px solid var(--line);
 	}
 
 	.site-button-secondary:hover {
+		background: var(--bg-soft);
+		border-color: var(--ink-soft);
 		transform: translateY(-1px);
+	}
+
+	.site-button-secondary:active {
+		transform: translateY(0);
 	}
 </style>

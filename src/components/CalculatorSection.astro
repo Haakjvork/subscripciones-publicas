@@ -3,49 +3,44 @@ import SiteButton from "./ui/SiteButton.astro";
 ---
 
 <section class="calculator">
-	<article class="panel">
-		<form id="tax-form">
-			<div class="field">
-				<label for="salary">Cantidad del salario</label>
-				<input id="salary" name="salary" type="number" min="0" step="0.01" value="18500" required />
+	<article class="panel cards-panel">
+		<h2>Comparar salarios y desglose fiscal</h2>
+		<p class="subtitle">Selecciona tarjetas predefinidas o añade las tuyas propias</p>
+		
+		<div class="cards-container" id="cards-container">
+			<div class="card card-preset">
+				<input type="checkbox" id="smi-check" class="card-checkbox" checked />
+				<div class="card-content">
+					<span class="card-label">Salario Mínimo</span>
+					<span class="card-value">€15.876/año</span>
+				</div>
 			</div>
 
-			<div class="field">
-				<label for="salary-mode">Tipo de cálculo</label>
-				<select id="salary-mode" name="salaryMode">
-					<option value="anual-bruto">Importe anual bruto</option>
-					<option value="mensual-12">Salario mensual bruto en 12 pagas</option>
-					<option value="mensual-14">Salario mensual bruto en 14 pagas</option>
-				</select>
+			<div class="card card-preset">
+				<input type="checkbox" id="media-check" class="card-checkbox" checked />
+				<div class="card-content">
+					<span class="card-label">Salario Medio</span>
+					<span class="card-value">€29.000/año</span>
+				</div>
 			</div>
 
-			<SiteButton type="submit">Calcular estimación</SiteButton>
-			<p class="note">
-				Valores orientativos y de ejemplo para el mockup. Podrás ajustar el reparto de partidas más adelante.
-			</p>
-		</form>
-	</article>
-
-	<article id="result-panel" class="panel hidden" aria-live="polite">
-		<div class="result-head">
-			<strong id="result-title">Resultado estimado</strong>
-			<span id="result-subtitle" class="note"></span>
+			<div class="card card-add">
+				<button type="button" id="add-card-btn" class="btn-add-card">+ Agregar tarjeta</button>
+			</div>
 		</div>
 
-		<div class="kpis">
-			<div class="kpi">
-				<span>Impuestos al mes</span>
-				<strong >-</strong>
-			</div>
-			<div class="kpi">
-				<span>Impuestos al año</span>
-				<strong>-</strong>
-			</div>
+		<div id="custom-cards-container"></div>
+	</article>
+
+	<article id="result-panel" class="panel result-panel hidden" aria-live="polite">
+		<div class="results-grid" id="results-grid">
 		</div>
 
 		<div class="breakdown">
-			<strong>Desglose de impuestos (mock)</strong>
-			<table id="breakdown-table"></table>
+			<strong>Desglose: ¿En qué se reparte tu IRPF?</strong>
+			<div class="breakdown-scroll">
+				<table id="breakdown-table"></table>
+			</div>
 		</div>
 	</article>
 </section>
@@ -53,108 +48,431 @@ import SiteButton from "./ui/SiteButton.astro";
 <style>
 	.calculator {
 		display: flex;
-        flex-direction: column;
-		gap: 1rem;
+		flex-direction: column;
+		gap: 1.5rem;
 	}
 
 	.panel {
 		background: var(--bg-soft);
 		border: 1px solid var(--line);
-		border-radius: 24px;
-		padding: 1.2rem;
+		border-radius: 12px;
+		padding: 1.5rem;
 		box-shadow: var(--shadow);
 		animation: rise 0.7s ease both;
 	}
 
-	form {
-		display: grid;
-		gap: 0.9rem;
+	.cards-panel h2 {
+		margin: 0 0 0.5rem;
+		font-size: 1.1rem;
+		font-weight: 600;
+		letter-spacing: -0.01em;
 	}
 
-	.field {
-		display: grid;
-		gap: 0.35rem;
+	.subtitle {
+		margin: 0 0 1.5rem;
+		font-size: 0.9rem;
+		color: var(--ink-soft);
 	}
 
-	label {
+	.cards-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+		min-height: 140px;
+	}
+
+	.card {
+		position: relative;
+		background: var(--bg-main);
+		border: 2px solid var(--line);
+		border-radius: 10px;
+		padding: 1rem;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.card:hover {
+		border-color: var(--accent);
+		background: rgba(59, 130, 246, 0.02);
+	}
+
+	.card.card-preset {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 0.75rem;
+		align-items: start;
+	}
+
+	.card-checkbox {
+		width: 20px;
+		height: 20px;
+		cursor: pointer;
+		accent-color: var(--accent);
+		margin: 0.2rem 0 0 0;
+	}
+
+	.card-content {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+	}
+
+	.card-label {
 		font-weight: 600;
 		font-size: 0.95rem;
+		color: var(--ink);
 	}
 
-	input,
-	select {
-		width: 100%;
-		padding: 0.7rem 0.75rem;
-		border-radius: 12px;
-		border: 1px solid #b8ab91;
-		background: #fff;
-	}
-
-	.note {
-		margin: 0;
-		font-size: 0.86rem;
+	.card-value {
+		font-size: 0.85rem;
 		color: var(--ink-soft);
+	}
+
+	.card.card-add {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 2px dashed var(--line);
+		background: transparent;
+	}
+
+	.btn-add-card {
+		background: none;
+		border: none;
+		color: var(--accent);
+		font-weight: 600;
+		font-size: 0.95rem;
+		cursor: pointer;
+		transition: color 0.2s ease;
+		padding: 0;
+	}
+
+	.btn-add-card:hover {
+		color: var(--accent-strong);
+	}
+
+	.card.card-custom {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.card-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+
+	.card-header > div {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex: 1;
+	}
+
+	.card-header input[type="checkbox"] {
+		width: 18px;
+		height: 18px;
+		cursor: pointer;
+		accent-color: var(--accent);
+		margin: 0;
+		flex-shrink: 0;
+	}
+
+	.custom-card-label {
+		flex: 1;
+		border: none;
+		background: transparent;
+		font-weight: 600;
+		font-size: 0.95rem;
+		color: var(--ink);
+		padding: 0;
+		margin: 0;
+		outline: none;
+		cursor: text;
+	}
+
+	.btn-remove {
+		background: none;
+		border: none;
+		color: #ef4444;
+		font-size: 1.2rem;
+		cursor: pointer;
+		padding: 0;
+		line-height: 1;
+		flex-shrink: 0;
+		transition: color 0.2s ease;
+	}
+
+	.btn-remove:hover {
+		color: #dc2626;
+	}
+
+	.card-content {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.75rem;
+	}
+
+	.card-custom-input {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+	}
+
+	.card-custom-input input {
+		width: 100%;
+		padding: 0.5rem;
+		border: 1px solid var(--line);
+		border-radius: 6px;
+		font-size: 0.85rem;
+		background: var(--bg-soft);
+	}
+
+	.card-custom-input label {
+		font-size: 0.75rem;
+		color: var(--ink-soft);
+		font-weight: 500;
+	}
+
+	.card-custom-selector {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+	}
+
+	.card-custom-selector label {
+		font-size: 0.75rem;
+		color: var(--ink-soft);
+		font-weight: 500;
+	}
+
+	.card-custom-selector select {
+		width: 100%;
+		padding: 0.4rem;
+		border: 1px solid var(--line);
+		border-radius: 6px;
+		font-size: 0.8rem;
+		background: var(--bg-soft);
+	}
+
+	.results-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 1rem;
+		margin-bottom: 2rem;
+	}
+
+	.result-card {
+		background: var(--bg-main);
+		border: 1px solid var(--line);
+		border-radius: 10px;
+		padding: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	}
+
+	.result-card-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 2px solid var(--line);
+	}
+
+	.result-card-header strong {
+		font-size: 0.95rem;
+		color: var(--ink);
+		font-weight: 600;
+	}
+
+	.result-card-metrics {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.metric {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 1rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.metric:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	.metric-label {
+		font-size: 0.8rem;
+		color: var(--ink-soft);
+		font-weight: 500;
+		text-align: left;
+	}
+
+	.metric-value {
+		font-size: 0.95rem;
+		font-weight: 700;
+		color: var(--accent);
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	.form-custom {
+		display: grid;
+		gap: 1rem;
+		margin-top: 1.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--line);
+	}
+
+	.form-group {
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	.form-group label {
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: var(--ink);
+	}
+
+	.radio-group {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+		gap: 0.75rem;
+	}
+
+	.radio-label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		cursor: pointer;
+		font-size: 0.9rem;
+		padding: 0.5rem 0.75rem;
+		border: 1px solid var(--line);
+		border-radius: 8px;
+		transition: all 0.2s ease;
+	}
+
+	.radio-label:hover {
+		border-color: var(--accent);
+		background: rgba(59, 130, 246, 0.05);
+	}
+
+	.radio-label input[type="radio"] {
+		margin: 0;
+		cursor: pointer;
+		accent-color: var(--accent);
+	}
+
+	.result-panel {
+		margin-top: 1rem;
 	}
 
 	.hidden {
 		display: none;
 	}
 
-	.result-head {
-		display: grid;
-		gap: 0.35rem;
-		margin-bottom: 0.9rem;
-	}
-
-	.kpis {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0.8rem;
-	}
-
-	.kpis :global(.kpi) {
-        display: flex;
-        flex-direction: column;
-		padding: 0.8rem;
-		border-radius: 14px;
-		background: #fff;
-		border: 1px solid var(--line);
-	}
-
-	.kpis :global(.kpi strong) {
-		display: block;
-		font-size: 1.2rem;
-		margin-top: 0.2rem;
-	}
-
 	.breakdown {
-		margin-top: 1rem;
+		margin-top: 2rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--line);
 		display: grid;
-		gap: 0.5rem;
+		gap: 0.75rem;
+	}
+
+	.breakdown > strong {
+		font-size: 0.95rem;
+		color: var(--ink);
+		font-weight: 600;
+	}
+
+	.breakdown-scroll {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	#breakdown-table {
 		width: 100%;
 		border-collapse: collapse;
-		background: #fff;
-		border-radius: 12px;
+		background: var(--bg-main);
+		border-radius: 8px;
 		overflow: hidden;
+		border: 1px solid var(--line);
+		font-size: 0.8rem;
+		min-width: 600px;
+	}
+
+	#breakdown-table :global(thead) {
+		background: var(--bg-soft);
+		border-bottom: 2px solid var(--line);
+		position: sticky;
+		top: 0;
+	}
+
+	#breakdown-table :global(th) {
+		padding: 0.65rem 0.5rem;
+		text-align: left;
+		font-weight: 600;
+		color: var(--ink);
+		white-space: nowrap;
 	}
 
 	#breakdown-table :global(td) {
-		padding: 0.55rem 0.7rem;
-		border: 1px solid var(--line);
+		padding: 0.65rem 0.5rem;
+		border-bottom: 1px solid var(--line);
 		text-align: left;
 	}
 
-	#breakdown-table :global(td:nth-child(3)) {
-		font-weight: 700;
-		color: var(--highlight);
+	#breakdown-table :global(td:nth-child(1)) {
+		font-weight: 500;
+		min-width: 180px;
 	}
 
-	@media (min-width: 900px) {
-		.calculator {
-			grid-template-columns: 1fr 1fr;
+	#breakdown-table :global(td:not(:first-child)) {
+		text-align: right;
+		font-weight: 600;
+		color: var(--accent);
+	}
+
+	#breakdown-table :global(tr:last-child td) {
+		border-bottom: none;
+	}
+
+	@media (max-width: 1200px) {
+		.results-grid {
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		}
+	}
+
+	@media (max-width: 768px) {
+		.cards-container {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		.radio-group {
+			grid-template-columns: 1fr;
+		}
+
+		.results-grid {
+			grid-template-columns: 1fr;
+		}
+
+		#breakdown-table {
+			font-size: 0.75rem;
+		}
+
+		#breakdown-table :global(th),
+		#breakdown-table :global(td) {
+			padding: 0.5rem 0.5rem;
 		}
 	}
 </style>
