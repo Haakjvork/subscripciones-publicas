@@ -14,7 +14,7 @@ import SiteButton from "./ui/SiteButton.astro";
 							<input type="checkbox" id="smi-check" class="card-checkbox" checked />
 							<div class="card-content">
 								<span class="card-label">Salario Mínimo</span>
-								<span class="card-value">€15.876/año</span>
+								<span class="card-value">15.876 €/año</span>
 							</div>
 						</div>
 				</div>
@@ -23,17 +23,27 @@ import SiteButton from "./ui/SiteButton.astro";
 							<span class="card-metric-label">% Retención</span>
 							<span class="card-metric-value" data-metric="retention">-</span>
 						</div>
-						<div class="card-metric">
-							<span class="card-metric-label">Bruto Anual</span>
-							<span class="card-metric-value" data-metric="bruto">-</span>
-						</div>
-						<div class="card-metric">
-							<span class="card-metric-label">IRPF Anual</span>
-							<span class="card-metric-value" data-metric="irpf">-</span>
-						</div>
-						<div class="card-metric">
-							<span class="card-metric-label">Neto Mensual</span>
-							<span class="card-metric-value" data-metric="neto">-</span>
+						<div>
+							<div class="card-metrics-row">
+								<div class="card-metric">
+									<span class="card-metric-label">Bruto Anual</span>
+									<span class="card-metric-value" data-metric="bruto">-</span>
+								</div>
+								<div class="card-metric">
+									<span class="card-metric-label">IRPF Anual</span>
+									<span class="card-metric-value" data-metric="irpf">-</span>
+								</div>
+							</div>
+							<div class="card-metrics-row">
+								<div class="card-metric">
+									<span class="card-metric-label">Neto Mensual</span>
+									<span class="card-metric-value" data-metric="neto">-</span>
+								</div>
+								<div class="card-metric">
+									<span class="card-metric-label">IRPF Mensual</span>
+									<span class="card-metric-value" data-metric="irpf-mensual">-</span>
+								</div>
+							</div>
 						</div>
 					</div>
 			</div>
@@ -44,7 +54,7 @@ import SiteButton from "./ui/SiteButton.astro";
 							<input type="checkbox" id="media-check" class="card-checkbox" checked />
 							<div class="card-content">
 								<span class="card-label">Salario Medio</span>
-								<span class="card-value">€29.000/año</span>
+								<span class="card-value">29.000 €/año</span>
 							</div>
 						</div>
 				</div>
@@ -53,27 +63,37 @@ import SiteButton from "./ui/SiteButton.astro";
 							<span class="card-metric-label">% Retención</span>
 							<span class="card-metric-value" data-metric="retention">-</span>
 						</div>
-						<div class="card-metric">
-							<span class="card-metric-label">Bruto Anual</span>
-							<span class="card-metric-value" data-metric="bruto">-</span>
-						</div>
-						<div class="card-metric">
-							<span class="card-metric-label">IRPF Anual</span>
-							<span class="card-metric-value" data-metric="irpf">-</span>
-						</div>
-						<div class="card-metric">
-							<span class="card-metric-label">Neto Mensual</span>
-							<span class="card-metric-value" data-metric="neto">-</span>
+						<div>
+							<div class="card-metrics-row">
+								<div class="card-metric">
+									<span class="card-metric-label">Bruto Anual</span>
+									<span class="card-metric-value" data-metric="bruto">-</span>
+								</div>
+								<div class="card-metric">
+									<span class="card-metric-label">IRPF Anual</span>
+									<span class="card-metric-value" data-metric="irpf">-</span>
+								</div>
+							</div>
+							<div class="card-metrics-row">
+								<div class="card-metric">
+									<span class="card-metric-label">Neto Mensual</span>
+									<span class="card-metric-value" data-metric="neto">-</span>
+								</div>
+								<div class="card-metric">
+									<span class="card-metric-label">IRPF Mensual</span>
+									<span class="card-metric-value" data-metric="irpf-mensual">-</span>
+								</div>
+							</div>
 						</div>
 					</div>
 			</div>
+
+				<div id="custom-cards-container"></div>
 
 				<div class="card card-add" id="add-card-placeholder">
 				<button type="button" id="add-card-btn" class="btn-add-card">+ Agregar tarjeta</button>
 			</div>
 		</div>
-
-		<div id="custom-cards-container"></div>
 	</article>
 
 	<article id="result-panel" class="panel result-panel hidden" aria-live="polite">
@@ -82,6 +102,7 @@ import SiteButton from "./ui/SiteButton.astro";
 			<div class="breakdown-scroll">
 				<table id="breakdown-table"></table>
 			</div>
+			<p class="breakdown-note">El total incluye solo las partidas asignadas y se calcula antes de redondear los importes.</p>
 		</div>
 	</article>
 </section>
@@ -117,13 +138,19 @@ import SiteButton from "./ui/SiteButton.astro";
 
 	.cards-container {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
 		gap: 1rem;
 		margin-bottom: 1.5rem;
 		min-height: 140px;
 	}
 
-	.card {
+	#custom-cards-container {
+		display: contents;
+	}
+
+	/* Custom cards are injected at runtime, so their styles cannot rely on Astro scope attributes. */
+	.cards-container :global(.card) {
+		min-width: 0;
 		position: relative;
 		background: var(--bg-main);
 		border: 2px solid var(--line);
@@ -133,47 +160,59 @@ import SiteButton from "./ui/SiteButton.astro";
 		transition: all 0.2s ease;
 	}
 
-	.card:hover {
+	.cards-container :global(.card:hover) {
 		border-color: var(--accent);
 		background: rgba(59, 130, 246, 0.02);
 	}
 
-	.card.card-preset {
+	.cards-container :global(.card.card-preset) {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		gap: 0.75rem;
 		align-items: start;
 	}
 
-	.card.card-preset-full {
+	.cards-container :global(.card.card-preset-full) {
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
 		padding: 1rem;
 	}
 
-	.card-header-preset {
+	.cards-container :global(.card-header-preset) {
+		gap: 0.5rem;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 	}
 
-	.card-header-left {
+	.cards-container :global(.card-header-left) {
+		min-width: 0;
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
 		flex: 1;
 	}
 
-	.card-metrics-preset {
+	.cards-container :global(.card-metrics-preset) {
+		display: grid;
+		grid-template-columns: 1fr 2fr;
+		gap: 0.75rem;
+		padding-top: 0.75rem;
+		align-items: center;
+		border-top: 1px solid var(--line);
+	}
+
+	.cards-container :global(.card-metrics-row) {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 0.75rem;
 		padding-top: 0.75rem;
-		border-top: 1px solid var(--line);
 	}
 
-	.card-checkbox {
+	.cards-container :global(.card-checkbox),
+	.cards-container :global(.custom-card-check) {
+		flex-shrink: 0;
 		width: 20px;
 		height: 20px;
 		cursor: pointer;
@@ -181,24 +220,25 @@ import SiteButton from "./ui/SiteButton.astro";
 		margin: 0.2rem 0 0 0;
 	}
 
-	.card-content {
+	.cards-container :global(.card-content) {
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
 		gap: 0.3rem;
 	}
 
-	.card-label {
+	.cards-container :global(.card-label) {
 		font-weight: 600;
 		font-size: 0.95rem;
 		color: var(--ink);
 	}
 
-	.card-value {
+	.cards-container :global(.card-value) {
 		font-size: 0.85rem;
 		color: var(--ink-soft);
 	}
 
-	.card.card-add {
+	.cards-container :global(.card.card-add) {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -206,7 +246,7 @@ import SiteButton from "./ui/SiteButton.astro";
 		background: transparent;
 	}
 
-	.btn-add-card {
+	.cards-container :global(.btn-add-card) {
 		background: none;
 		border: none;
 		color: var(--accent);
@@ -217,11 +257,11 @@ import SiteButton from "./ui/SiteButton.astro";
 		padding: 0;
 	}
 
-	.btn-add-card:hover {
+	.cards-container :global(.btn-add-card:hover) {
 		color: var(--accent-strong);
 	}
 
-	.card.card-custom {
+	.cards-container :global(.card.card-custom) {
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
@@ -230,12 +270,12 @@ import SiteButton from "./ui/SiteButton.astro";
 		background: rgba(59, 130, 246, 0.02);
 	}
 
-	.card.card-custom:hover {
+	.cards-container :global(.card.card-custom:hover) {
 		background: rgba(59, 130, 246, 0.05);
 		border-color: var(--accent-strong);
 	}
 
-	.btn-remove {
+	.cards-container :global(.btn-remove) {
 		background: none;
 		border: none;
 		color: #ef4444;
@@ -247,30 +287,31 @@ import SiteButton from "./ui/SiteButton.astro";
 		transition: color 0.2s ease;
 	}
 
-	.btn-remove:hover {
+	.cards-container :global(.btn-remove:hover) {
 		color: #dc2626;
 	}
 
-	.card-inputs {
+	.cards-container :global(.card-inputs) {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 0.75rem;
 	}
 
-	.card-input-group {
+	.cards-container :global(.card-input-group) {
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
 		gap: 0.3rem;
 	}
 
-	.card-input-group label {
+	.cards-container :global(.card-input-group label) {
 		font-size: 0.75rem;
 		color: var(--ink-soft);
 		font-weight: 500;
 	}
 
-	.card-input-group input,
-	.card-input-group select {
+	.cards-container :global(.card-input-group input),
+	.cards-container :global(.card-input-group select) {
 		width: 100%;
 		padding: 0.5rem;
 		border: 1px solid var(--line);
@@ -279,19 +320,21 @@ import SiteButton from "./ui/SiteButton.astro";
 		background: var(--bg-soft);
 	}
 
-	.card-metric {
+	.cards-container :global(.card-metric) {
+		min-width: 0;
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
 	}
 
-	.card-metric-label {
+	.cards-container :global(.card-metric-label) {
 		font-size: 0.75rem;
 		color: var(--ink-soft);
 		font-weight: 500;
 	}
 
-	.card-metric-value {
+	.cards-container :global(.card-metric-value) {
+		overflow-wrap: anywhere;
 		font-size: 0.9rem;
 		font-weight: 700;
 		color: var(--accent);
@@ -372,6 +415,12 @@ import SiteButton from "./ui/SiteButton.astro";
 		-webkit-overflow-scrolling: touch;
 	}
 
+	.breakdown-note {
+		margin: 0;
+		color: var(--ink-soft);
+		font-size: 0.8rem;
+	}
+
 	#breakdown-table {
 		width: 100%;
 		border-collapse: collapse;
@@ -435,6 +484,53 @@ import SiteButton from "./ui/SiteButton.astro";
 		border-bottom: none;
 	}
 
+	#breakdown-table :global(.category-row) {
+		background: var(--bg-soft);
+	}
+
+	#breakdown-table :global(tfoot td) {
+		border-top: 2px solid var(--line);
+		font-weight: 700;
+	}
+
+	#breakdown-table :global(.category-toggle) {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: var(--ink);
+		font: inherit;
+		font-weight: 700;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	#breakdown-table :global(.category-toggle:hover) {
+		color: var(--accent-strong);
+	}
+
+	#breakdown-table :global(.category-toggle:focus-visible) {
+		outline: 2px solid var(--accent);
+		outline-offset: 3px;
+	}
+
+	#breakdown-table :global(.category-arrow) {
+		display: inline-block;
+		transition: transform 0.2s ease;
+	}
+
+	#breakdown-table :global(.category-toggle[aria-expanded="true"] .category-arrow) {
+		transform: rotate(90deg);
+	}
+
+	#breakdown-table :global(.subcategory-row td:first-child) {
+		padding-left: 1.75rem;
+		color: var(--ink-soft);
+	}
+
 	@media (max-width: 1200px) {
 		.results-grid {
 			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -443,7 +539,27 @@ import SiteButton from "./ui/SiteButton.astro";
 
 	@media (max-width: 768px) {
 		.cards-container {
-			grid-template-columns: repeat(2, 1fr);
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 0.75rem;
+		}
+
+		.cards-container :global(.card.card-preset-full),
+		.cards-container :global(.card.card-custom) {
+			gap: 0.75rem;
+			padding: 0.75rem;
+		}
+
+		.cards-container :global(.card-metrics-preset),
+		.cards-container :global(.card-inputs) {
+			grid-template-columns: 1fr;
+		}
+
+		.cards-container :global(.card-metrics-row) {
+			gap: 0.5rem;
+		}
+
+		.cards-container :global(.card-metric-value) {
+			font-size: 0.8rem;
 		}
 
 		.radio-group {

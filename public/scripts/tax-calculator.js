@@ -2,42 +2,71 @@ const SMI_ANUAL = 15876;
 const SALARIO_MEDIO_ANUAL = 29000;
 
 const ARRAY_CATEGORIAS = [
-	{ "nombre": "Pensiones de Jubilación", "porcentaje": 24.8 },
-	{ "nombre": "Resto de Pensiones (Viudedad, Invalidez...)", "porcentaje": 9.7 },
-	{ "nombre": "Sanidad: Hospitales y Urgencias", "porcentaje": 7.8 },
-	{ "nombre": "Intereses de la Deuda Pública", "porcentaje": 5.8 },
-	{ "nombre": "El Paro (Subsidios por Desempleo)", "porcentaje": 6.2 },
-	{ "nombre": "Educación Secundaria, Bachiller y FP", "porcentaje": 4.1 },
-	{ "nombre": "Educación Primaria e Infantil", "porcentaje": 3.6 },
-	{ "nombre": "Sanidad: Recetas y Medicamentos", "porcentaje": 2.9 },
-	{ "nombre": "Defensa y Ejército", "porcentaje": 2.9 },
-	{ "nombre": "Universidades y Mecanismos de Becas", "porcentaje": 2.6 },
-	{ "nombre": "Sanidad: Médicos de Cabecera (Atención Primaria)", "porcentaje": 2.3 },
-	{ "nombre": "Policía Nacional y Guardia Civil", "porcentaje": 2.2 },
-	{ "nombre": "Sanidad: Médicos Especialistas y Consultas", "porcentaje": 2.1 },
-	{ "nombre": "Policías Locales y Autonómicas", "porcentaje": 2.1 },
-	{ "nombre": "Ayudas a Industria, Energía e I+D+i", "porcentaje": 1.8 },
-	{ "nombre": "Vías de Tren y Cercanías (ADIF/Renfe)", "porcentaje": 1.7 },
-	{ "nombre": "Mantenimiento de Carreteras y Autovías", "porcentaje": 1.6 },
-	{ "nombre": "Justicia y Prisiones", "porcentaje": 1.4 },
-	{ "nombre": "Limpieza Viaria, Basuras y Alcantarillado", "porcentaje": 1.4 },
-	{ "nombre": "Cultura, Deportes y Conservación de Patrimonio", "porcentaje": 1.3 },
-	{ "nombre": "Gastos Administrativos (Estado Central)", "porcentaje": 1.1 },
-	{ "nombre": "Gastos Administrativos (Comunidades Autónomas)", "porcentaje": 1.0 },
-	{ "nombre": "Vivienda Pública y Ayudas al Alquiler", "porcentaje": 0.9 },
-	{ "nombre": "Bomberos, Protección Civil y Emergencias", "porcentaje": 0.8 },
-	{ "nombre": "Ayudas directas al Transporte Público", "porcentaje": 0.8 },
-	{ "nombre": "Gastos Administrativos (Diputaciones y Ayuntamientos)", "porcentaje": 0.6 },
-	{ "nombre": "Televisión y Radios Públicas (RTVE y Autonómicas)", "porcentaje": 0.5 },
-	{ "nombre": "Puertos y Aeropuertos", "porcentaje": 0.3 },
-	{ "nombre": "Sueldos de Políticos, Concejales y Asesores", "porcentaje": 0.29 },
-	{ "nombre": "Otros (Fondos de Contingencia e Imprevistos)", "porcentaje": 0.2 },
-	{ "nombre": "Casa Real", "porcentaje": 0.01 }
+	{ nombre: "Pensiones", partidas: [
+		{ nombre: "Pensiones de Jubilación", porcentaje: 24.8 },
+		{ nombre: "Resto de Pensiones (Viudedad, Invalidez...)", porcentaje: 9.7 }
+	] },
+	{ nombre: "Sanidad", partidas: [
+		{ nombre: "Sanidad: Hospitales y Urgencias", porcentaje: 7.8 },
+		{ nombre: "Sanidad: Recetas y Medicamentos", porcentaje: 2.9 },
+		{ nombre: "Sanidad: Médicos de Cabecera (Atención Primaria)", porcentaje: 2.3 },
+		{ nombre: "Sanidad: Médicos Especialistas y Consultas", porcentaje: 2.1 }
+	] },
+	{ nombre: "Educación", partidas: [
+		{ nombre: "Educación Secundaria, Bachiller y FP", porcentaje: 4.1 },
+		{ nombre: "Educación Primaria e Infantil", porcentaje: 3.6 },
+		{ nombre: "Universidades y Mecanismos de Becas", porcentaje: 2.6 }
+	] },
+	{ nombre: "Policía y Ejército", partidas: [
+		{ nombre: "Defensa y Ejército", porcentaje: 2.9 },
+		{ nombre: "Policía Nacional y Guardia Civil", porcentaje: 2.2 },
+		{ nombre: "Policías Locales y Autonómicas", porcentaje: 2.1 }
+	] },
+	{ nombre: "Desempleo", partidas: [
+		{ nombre: "El Paro (Subsidios por Desempleo)", porcentaje: 6.2 }
+	] },
+	{ nombre: "Deuda pública", partidas: [
+		{ nombre: "Intereses de la Deuda Pública", porcentaje: 5.8 }
+	] },
+	{ nombre: "Industria, energía e investigación", partidas: [
+		{ nombre: "Ayudas a Industria, Energía e I+D+i", porcentaje: 1.8 }
+	] },
+	{ nombre: "Transporte e infraestructuras", partidas: [
+		{ nombre: "Vías de Tren y Cercanías (ADIF/Renfe)", porcentaje: 1.7 },
+		{ nombre: "Mantenimiento de Carreteras y Autovías", porcentaje: 1.6 },
+		{ nombre: "Ayudas directas al Transporte Público", porcentaje: 0.8 },
+		{ nombre: "Puertos y Aeropuertos", porcentaje: 0.3 }
+	] },
+	{ nombre: "Justicia", partidas: [
+		{ nombre: "Justicia y Prisiones", porcentaje: 1.4 }
+	] },
+	{ nombre: "Servicios públicos y emergencias", partidas: [
+		{ nombre: "Limpieza Viaria, Basuras y Alcantarillado", porcentaje: 1.4 },
+		{ nombre: "Bomberos, Protección Civil y Emergencias", porcentaje: 0.8 }
+	] },
+	{ nombre: "Cultura y medios públicos", partidas: [
+		{ nombre: "Cultura, Deportes y Conservación de Patrimonio", porcentaje: 1.3 },
+		{ nombre: "Televisión y Radios Públicas (RTVE y Autonómicas)", porcentaje: 0.5 }
+	] },
+	{ nombre: "Administración e instituciones", partidas: [
+		{ nombre: "Gastos Administrativos (Estado Central)", porcentaje: 1.1 },
+		{ nombre: "Gastos Administrativos (Comunidades Autónomas)", porcentaje: 1.0 },
+		{ nombre: "Gastos Administrativos (Diputaciones y Ayuntamientos)", porcentaje: 0.6 },
+		{ nombre: "Sueldos de Políticos, Concejales y Asesores", porcentaje: 0.29 },
+		{ nombre: "Casa Real", porcentaje: 0.01 }
+	] },
+	{ nombre: "Vivienda", partidas: [
+		{ nombre: "Vivienda Pública y Ayudas al Alquiler", porcentaje: 0.9 }
+	] },
+	{ nombre: "Otros", partidas: [
+		{ nombre: "Otros (Fondos de Contingencia e Imprevistos)", porcentaje: 0.2 }
+	] }
 ];
 
 let customCards = [];
 let cardIdCounter = 1;
 let activeInputId = null;
+const expandedCategories = new Set();
 
 function getAnnualSalary(value, mode) {
 	const num = parseFloat(value);
@@ -91,18 +120,22 @@ function calcularRetencionIRPF(salarioAnual) {
 	return irpfAnual;
 }
 
+function formatEuro(value, maximumFractionDigits = 0) {
+	return `${value.toLocaleString('es-ES', { maximumFractionDigits })} €`;
+}
+
 function getFormatLabel(value, mode) {
 	const num = parseFloat(value);
-	if (isNaN(num) || num === 0) return "€0";
+	if (isNaN(num) || num === 0) return "0 €";
 	
 	if (mode === "anual-bruto") {
-		return `€${num.toLocaleString('es-ES', { maximumFractionDigits: 0 })} Bruto Anual`;
+		return `${formatEuro(num)} Bruto Anual`;
 	} else if (mode === "mensual-12") {
-		return `€${num.toLocaleString('es-ES', { maximumFractionDigits: 0 })} Mensual (12)`;
+		return `${formatEuro(num)} Mensual (12)`;
 	} else if (mode === "mensual-14") {
-		return `€${num.toLocaleString('es-ES', { maximumFractionDigits: 0 })} Mensual (14)`;
+		return `${formatEuro(num)} Mensual (14)`;
 	}
-	return `€${num.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`;
+	return formatEuro(num);
 }
 
 function updateMetricsDisplay(salaryValue, elementId) {
@@ -113,11 +146,16 @@ function updateMetricsDisplay(salaryValue, elementId) {
 	const retencion = salaryValue > 0 ? (irpfAnual / salaryValue) * 100 : 0;
 	const netoMensual = (salaryValue - irpfAnual) / 12;
 
-	const metricsElements = element.querySelectorAll('.card-metric-value');
-	metricsElements[0].textContent = `${retencion.toFixed(2)}%`;
-	metricsElements[1].textContent = `€${salaryValue.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`;
-	metricsElements[2].textContent = `€${irpfAnual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`;
-	metricsElements[3].textContent = `€${netoMensual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`;
+	const values = {
+		retention: `${retencion.toFixed(2)}%`,
+		bruto: formatEuro(salaryValue),
+		irpf: formatEuro(irpfAnual),
+		neto: formatEuro(netoMensual),
+		"irpf-mensual": formatEuro(irpfAnual / 12)
+	};
+	for (const [metric, value] of Object.entries(values)) {
+		element.querySelector(`[data-metric="${metric}"]`).textContent = value;
+	}
 }
 
 function getSelectedSalaries() {
@@ -125,19 +163,18 @@ function getSelectedSalaries() {
 
 	const smiCheck = document.getElementById("smi-check");
 	if (smiCheck && smiCheck.checked) {
-		salaries.push({ id: "smi", salary: SMI_ANUAL, label: "€15.876 Bruto Anual", checked: true });
+		salaries.push({ id: "smi", salary: SMI_ANUAL, checked: true });
 	}
 
 	const mediaCheck = document.getElementById("media-check");
 	if (mediaCheck && mediaCheck.checked) {
-		salaries.push({ id: "media", salary: SALARIO_MEDIO_ANUAL, label: "€29.000 Bruto Anual", checked: true });
+		salaries.push({ id: "media", salary: SALARIO_MEDIO_ANUAL, checked: true });
 	}
 
 	for (const card of customCards) {
 		if (card.checked) {
 			const salary = getAnnualSalary(card.salary, card.mode);
-			const label = getFormatLabel(card.salary, card.mode);
-			salaries.push({ id: card.id, salary: salary, label: label, checked: true });
+			salaries.push({ id: card.id, salary: salary, checked: true });
 		}
 	}
 
@@ -193,19 +230,29 @@ function renderCustomCard(id, salary, mode) {
 			<div class="card-metrics-preset">
 				<div class="card-metric">
 					<span class="card-metric-label">% Retención</span>
-					<span class="card-metric-value">${retencion.toFixed(2)}%</span>
+					<span class="card-metric-value" data-metric="retention">${retencion.toFixed(2)}%</span>
 				</div>
-				<div class="card-metric">
-					<span class="card-metric-label">Bruto Anual</span>
-					<span class="card-metric-value">€${annualSalary.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
-				</div>
-				<div class="card-metric">
-					<span class="card-metric-label">IRPF Anual</span>
-					<span class="card-metric-value">€${irpfAnual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
-				</div>
-				<div class="card-metric">
-					<span class="card-metric-label">Neto Mensual</span>
-					<span class="card-metric-value">€${netoMensual.toLocaleString('es-ES', { maximumFractionDigits: 0 })}</span>
+				<div>
+					<div class="card-metrics-row">
+						<div class="card-metric">
+							<span class="card-metric-label">Bruto Anual</span>
+							<span class="card-metric-value" data-metric="bruto">${formatEuro(annualSalary)}</span>
+						</div>
+						<div class="card-metric">
+							<span class="card-metric-label">IRPF Anual</span>
+							<span class="card-metric-value" data-metric="irpf">${formatEuro(irpfAnual)}</span>
+						</div>
+					</div>
+					<div class="card-metrics-row">
+						<div class="card-metric">
+							<span class="card-metric-label">Neto Mensual</span>
+							<span class="card-metric-value" data-metric="neto">${formatEuro(netoMensual)}</span>
+						</div>
+						<div class="card-metric">
+							<span class="card-metric-label">IRPF Mensual</span>
+							<span class="card-metric-value" data-metric="irpf-mensual">${formatEuro(irpfAnual / 12)}</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -219,25 +266,34 @@ function createBreakdownTable(salaries) {
 
 	let html = "<thead><tr><th>Concepto</th><th>%</th>";
 	for (const sal of salaries) {
-		html += `<th>${sal.label}</th>`;
+		const netoMensual = (sal.salary - calcularRetencionIRPF(sal.salary)) / 12;
+		html += `<th>Neto mensual: ${formatEuro(netoMensual)}</th>`;
 	}
 	html += "</tr></thead><tbody>";
 
-	for (let i = 0; i < ARRAY_CATEGORIAS.length; i++) {
-		const categoria = ARRAY_CATEGORIAS[i];
-		html += `<tr><td>${categoria.nombre}</td><td>${categoria.porcentaje.toFixed(2)}%</td>`;
-
-		for (const sal of salaries) {
-			const irpfAnual = calcularRetencionIRPF(sal.salary);
-			const importeAnual = (irpfAnual * categoria.porcentaje) / 100;
-			const importeMensual = importeAnual / 12;
-			html += `<td>€${importeMensual.toLocaleString('es-ES', { maximumFractionDigits: 2 })}</td>`;
-		}
-
-		html += "</tr>";
+	function amountCells(porcentaje) {
+		return salaries.map(sal => {
+			const importeMensual = (calcularRetencionIRPF(sal.salary) * porcentaje) / 100 / 12;
+			return `<td>${formatEuro(importeMensual, 2)}</td>`;
+		}).join("");
 	}
 
-	html += "</tbody>";
+	for (const [index, categoria] of ARRAY_CATEGORIAS.entries()) {
+		const expanded = expandedCategories.has(index);
+		const porcentaje = categoria.partidas.reduce((total, partida) => total + partida.porcentaje, 0);
+		const rowIds = categoria.partidas.map((_, partidaIndex) => `category-${index}-item-${partidaIndex}`);
+		html += `<tr class="category-row"><td><button type="button" class="category-toggle" data-category="${index}" aria-expanded="${expanded}" aria-controls="${rowIds.join(" ")}"><span class="category-arrow" aria-hidden="true">▸</span>${categoria.nombre}</button></td><td>${porcentaje.toFixed(2)}%</td>${amountCells(porcentaje)}</tr>`;
+
+		for (const [partidaIndex, partida] of categoria.partidas.entries()) {
+			html += `<tr class="subcategory-row" id="${rowIds[partidaIndex]}"${expanded ? "" : " hidden"}><td>${partida.nombre}</td><td>${partida.porcentaje.toFixed(2)}%</td>${amountCells(partida.porcentaje)}</tr>`;
+		}
+	}
+
+	const porcentajeTotal = ARRAY_CATEGORIAS.reduce(
+		(total, categoria) => total + categoria.partidas.reduce((subtotal, partida) => subtotal + partida.porcentaje, 0),
+		0
+	);
+	html += `</tbody><tfoot><tr><td>Total</td><td>${porcentajeTotal.toFixed(2)}%</td>${amountCells(porcentajeTotal)}</tr></tfoot>`;
 	return html;
 }
 
@@ -387,8 +443,26 @@ function attachAddCardListener() {
 	}
 }
 
+function attachCategoryListeners() {
+	const table = document.getElementById("breakdown-table");
+	table.addEventListener("click", (e) => {
+		const button = e.target.closest(".category-toggle");
+		if (!button || !table.contains(button)) return;
+
+		const index = Number(button.dataset.category);
+		const expanded = !expandedCategories.has(index);
+		if (expanded) expandedCategories.add(index);
+		else expandedCategories.delete(index);
+		button.setAttribute("aria-expanded", String(expanded));
+		for (const id of button.getAttribute("aria-controls").split(" ")) {
+			document.getElementById(id).hidden = !expanded;
+		}
+	});
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 	attachPredefineCardListeners();
 	attachAddCardListener();
+	attachCategoryListeners();
 	updateDisplay();
 });
